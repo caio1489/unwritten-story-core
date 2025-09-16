@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   TrendingUp, 
@@ -14,14 +14,37 @@ import { useAuth } from './AuthWrapper';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
 
 export const AnalyticsPanel: React.FC = () => {
   const { user } = useAuth();
-  const [leads] = useLocalStorage<Lead[]>(`leads-${user?.id}`, []);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [sales] = useLocalStorage<Sale[]>(`sales-${user?.id}`, []);
 
-  const filteredLeads = leads.filter(lead => 
-    user?.role === 'master' || lead.assigned_to === user?.user_id
+  useEffect(() => {
+    const fetchLeads = async () => {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error) setLeads((data as Lead[]) || []);
+    };
+
+    fetchLeads();
+
+    const channel = supabase
+      .channel('analytics-leads')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leads' }, fetchLeads)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'leads' }, fetchLeads)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
+  const filteredLeads = leads.filter(lead =>
+    user?.role === 'master' || lead.assigned_to === user?.id || lead.user_id === user?.id
   );
 
   const filteredSales = sales.filter(sale => 
@@ -291,7 +314,7 @@ export const AnalyticsPanel: React.FC = () => {
                     <div className="w-full bg-muted rounded-full h-2 mt-1">
                       <div 
                         className="bg-gradient-to-r from-primary to-primary-dark h-2 rounded-full transition-all"
-                        style={{ width: `${(product.count / analytics.topProducts[0].count) * 100}%` }}
+                        style={{ width: `${(product.count / (analytics.topProducts[0]?.count || 1)) * 100}%` }}
                       />
                     </div>
                   </div>

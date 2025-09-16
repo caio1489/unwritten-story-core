@@ -341,13 +341,18 @@ export const KanbanBoard: React.FC = () => {
                 )}
               </div>
             </div>
-            <Button 
-              onClick={() => setNewLeadModalOpen(true)}
-              className="bg-gradient-to-r from-primary via-primary to-primary-dark text-white hover:shadow-xl hover:scale-105 transition-all duration-200 px-6 py-3 rounded-xl font-semibold shadow-lg"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Novo Lead
-            </Button>
+            <div className="flex items-center space-x-3">
+              <div className="hidden sm:flex items-center mr-3 text-xs text-muted-foreground">
+                Total de leads: <span className="ml-1 font-semibold text-card-foreground">{allLeads.length}</span>
+              </div>
+              <Button 
+                onClick={() => setNewLeadModalOpen(true)}
+                className="bg-gradient-to-r from-primary via-primary to-primary-dark text-white hover:shadow-xl hover:scale-105 transition-all duration-200 px-6 py-3 rounded-xl font-semibold shadow-lg"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Novo Lead
+              </Button>
+            </div>
           </div>
 
           {/* Filters */}
