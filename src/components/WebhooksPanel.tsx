@@ -15,7 +15,8 @@ import {
   Trash2,
   Settings,
   Activity,
-  AlertCircle
+  AlertCircle,
+  BookOpen
 } from 'lucide-react';
 import { Webhook as WebhookType } from '@/types/crm';
 import { useAuth } from './AuthWrapper';
@@ -234,7 +235,21 @@ export const WebhooksPanel: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-card-foreground">Webhooks</h2>
+          <div className="flex items-center space-x-3">
+            <h2 className="text-2xl font-bold text-card-foreground">Webhooks</h2>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                const event = new CustomEvent('navigate-to-docs');
+                window.dispatchEvent(event);
+              }}
+              className="text-xs text-muted-foreground hover:text-primary"
+            >
+              <BookOpen className="w-3 h-3 mr-1" />
+              Ver Documentação
+            </Button>
+          </div>
           <p className="text-muted-foreground">Configure integrações automáticas com sistemas externos</p>
         </div>
         

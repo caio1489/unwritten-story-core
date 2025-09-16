@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CRMLayout } from '@/components/CRMLayout';
 import { KanbanBoard } from '@/components/KanbanBoard';
 import { SalesCompleted } from '@/components/SalesCompleted';
@@ -10,6 +10,15 @@ import { WebhooksDocs } from './WebhooksDocs';
 
 export const CRMDashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
+
+  useEffect(() => {
+    const handleNavigateToDocs = () => {
+      setCurrentPage('webhook-docs');
+    };
+
+    window.addEventListener('navigate-to-docs', handleNavigateToDocs);
+    return () => window.removeEventListener('navigate-to-docs', handleNavigateToDocs);
+  }, []);
 
   const renderContent = () => {
     switch (currentPage) {
