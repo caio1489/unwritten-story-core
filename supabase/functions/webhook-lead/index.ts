@@ -82,7 +82,27 @@ Deno.serve(async (req) => {
     
     console.log('Webhook ID:', webhookId);
 
-    const ownerId = userId || user_id || url.searchParams.get('user_id') || assignedTo || 'webhook-user';
+    // Sanitize and validate owner/user id (must be a valid UUID)
+    const rawOwner = (userId || user_id || url.searchParams.get('user_id') || assignedTo || '').toString().trim();
+    const sanitizedOwner = rawOwner.replace(/[^0-9a-fA-F-]/g, ''); // remove any stray characters like '?'
+
+    const isValidUUID = (v: string) => /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(v);
+
+    if (!isValidUUID(sanitizedOwner)) {
+      return new Response(
+        JSON.stringify({
+          error: 'Missing or invalid user_id',
+          message: 'Envie o parâmetro user_id (UUID) na URL: ?user_id=<uuid> e webhook_id=<id> ou no corpo como userId/user_id.',
+          example: 'https://vwegyduejazsqawtidsn.supabase.co/functions/v1/webhook-lead?webhook_id=12345&user_id=00000000-0000-0000-0000-000000000000'
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const ownerId = sanitizedOwner;
 
     // Create lead object - always starts in 'new' status (first kanban column)
     const leadData = {

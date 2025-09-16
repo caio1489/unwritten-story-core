@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   Plus,
-  Crown
+  Crown,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthWrapper';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ export const CRMLayout: React.FC<CRMLayoutProps> = ({
     { id: 'dashboard', name: 'Dashboard', icon: Kanban },
     { id: 'sales', name: 'Vendas Concluídas', icon: CheckCircle },
     { id: 'webhooks', name: 'Webhooks', icon: Webhook },
+    { id: 'webhook-docs', name: 'Docs Webhook', icon: BookOpen },
     { id: 'analytics', name: 'Analytics', icon: BarChart3 },
     ...(user?.role === 'master' ? [{ id: 'users', name: 'Usuários', icon: Users }] : []),
     { id: 'settings', name: 'Configurações', icon: Settings },

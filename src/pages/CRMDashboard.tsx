@@ -6,6 +6,7 @@ import { WebhooksPanel } from '@/components/WebhooksPanel';
 import { AnalyticsPanel } from '@/components/AnalyticsPanel';
 import { UsersPanel } from '@/components/UsersPanel';
 import { SettingsPanel } from '@/components/SettingsPanel';
+import { WebhooksDocs } from './WebhooksDocs';
 
 export const CRMDashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -18,6 +19,8 @@ export const CRMDashboard: React.FC = () => {
         return <SalesCompleted />;
       case 'webhooks':
         return <WebhooksPanel />;
+      case 'webhook-docs':
+        return <WebhooksDocs />;
       case 'analytics':
         return <AnalyticsPanel />;
       case 'users':
