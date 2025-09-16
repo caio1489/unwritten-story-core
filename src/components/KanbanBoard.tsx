@@ -21,7 +21,8 @@ import {
   Phone,
   Search,
   Filter,
-  Users
+  Users,
+  Trash2
 } from 'lucide-react';
 import { Lead, KanbanColumn } from '@/types/crm';
 import { supabase } from '@/integrations/supabase/client';
@@ -293,6 +294,57 @@ export const KanbanBoard: React.FC = () => {
     setLeads(updatedLeads);
   };
 
+  const handleDeleteLead = async (leadId: string, leadName: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Previne a navegação ao clicar no botão de deletar
+    
+    if (user?.role !== 'master') {
+      toast({
+        title: "Acesso negado",
+        description: "Apenas administradores podem excluir leads",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja excluir o lead "${leadName}"? Esta ação não pode ser desfeita.`
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', leadId);
+
+      if (error) {
+        console.error('Error deleting lead:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao excluir lead",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const updatedLeads = leads.filter(lead => lead.id !== leadId);
+      setLeads(updatedLeads);
+      
+      toast({
+        title: "Sucesso!",
+        description: "Lead excluído com sucesso",
+      });
+    } catch (error) {
+      console.error('Error deleting lead:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir lead",
+        variant: "destructive",
+      });
+    }
+  };
+
   const allLeads = leads;
 
   return (
@@ -477,17 +529,30 @@ export const KanbanBoard: React.FC = () => {
                                   >
                                     <CardContent className="p-4">
                                       <div className="space-y-3">
-                                         {/* Name and Value */}
-                                         <div className="flex items-center justify-between">
-                                           <h3 className="font-bold text-lg text-slate-800 group-hover:text-primary transition-colors line-clamp-1 flex-1">
-                                             {lead.name}
-                                           </h3>
-                                           {lead.value && (
-                                             <span className="text-sm font-semibold text-green-600 ml-2">
-                                               {formatCurrency(lead.value)}
-                                             </span>
-                                           )}
-                                         </div>
+                                          {/* Name and Value with Delete Button */}
+                                          <div className="flex items-center justify-between">
+                                            <h3 className="font-bold text-lg text-slate-800 group-hover:text-primary transition-colors line-clamp-1 flex-1">
+                                              {lead.name}
+                                            </h3>
+                                            <div className="flex items-center space-x-2">
+                                              {lead.value && (
+                                                <span className="text-sm font-semibold text-green-600">
+                                                  {formatCurrency(lead.value)}
+                                                </span>
+                                              )}
+                                              {user?.role === 'master' && (
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={(e) => handleDeleteLead(lead.id, lead.name, e)}
+                                                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700"
+                                                  title="Excluir lead"
+                                                >
+                                                  <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                              )}
+                                            </div>
+                                          </div>
 
                                          {/* Company */}
                                          {lead.company && (

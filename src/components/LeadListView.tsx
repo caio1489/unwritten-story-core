@@ -14,7 +14,8 @@ import {
   User,
   Users,
   Send,
-  Search
+  Search,
+  Trash2
 } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { useAuth } from './AuthWrapper';
@@ -39,6 +40,7 @@ export const LeadListView: React.FC<LeadListViewProps> = ({
   const [assignToUser, setAssignToUser] = useState<string>('');
   const [filterUser, setFilterUser] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -143,6 +145,60 @@ export const LeadListView: React.FC<LeadListViewProps> = ({
         description: "Erro inesperado ao delegar leads",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleDeleteLeads = async () => {
+    if (selectedLeads.length === 0) {
+      toast({
+        title: "Erro",
+        description: "Selecione leads para excluir",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja excluir ${selectedLeads.length} lead(s)? Esta ação não pode ser desfeita.`
+    );
+
+    if (!confirmDelete) return;
+
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .in('id', selectedLeads);
+
+      if (error) {
+        console.error('Erro ao excluir leads:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível excluir os leads",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const updatedLeads = leads.filter(lead => !selectedLeads.includes(lead.id));
+      onLeadsUpdate(updatedLeads);
+      
+      toast({
+        title: "Leads excluídos",
+        description: `${selectedLeads.length} lead(s) excluído(s) com sucesso`,
+      });
+
+      setSelectedLeads([]);
+    } catch (err) {
+      console.error('Erro inesperado ao excluir:', err);
+      toast({
+        title: "Erro",
+        description: "Erro inesperado ao excluir leads",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -260,6 +316,25 @@ export const LeadListView: React.FC<LeadListViewProps> = ({
                   >
                     <Send className="w-4 h-4 mr-2" />
                     Delegar
+                  </Button>
+                  <Button 
+                    onClick={handleDeleteLeads}
+                    disabled={deleting}
+                    size="sm"
+                    variant="outline"
+                    className="border-red-200 text-red-700 hover:bg-red-50"
+                  >
+                    {deleting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-700 mr-2"></div>
+                        Excluindo...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Excluir
+                      </>
+                    )}
                   </Button>
                 </div>
               )}

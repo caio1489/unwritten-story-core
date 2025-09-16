@@ -19,7 +19,8 @@ import {
   Send,
   Clock,
   User,
-  Edit
+  Edit,
+  Trash2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthWrapper';
@@ -83,6 +84,7 @@ export const LeadDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!leadId || !user) return;
@@ -191,6 +193,50 @@ export const LeadDetail: React.FC = () => {
     }
   };
 
+  const deleteLead = async () => {
+    if (!leadId || !user || deleting) return;
+
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja excluir o lead "${lead?.name}"? Esta ação não pode ser desfeita.`
+    );
+
+    if (!confirmDelete) return;
+
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', leadId);
+
+      if (error) {
+        console.error('Error deleting lead:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao excluir lead",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Sucesso!",
+        description: "Lead excluído com sucesso",
+      });
+      
+      navigate('/crm');
+    } catch (error) {
+      console.error('Error deleting lead:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir lead",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -258,6 +304,26 @@ export const LeadDetail: React.FC = () => {
               <Edit className="w-4 h-4" />
               <span>Editar</span>
             </Button>
+            {user?.role === 'master' && (
+              <Button 
+                variant="outline" 
+                onClick={deleteLead}
+                disabled={deleting}
+                className="flex items-center space-x-2 border-red-200 text-red-700 hover:bg-red-50"
+              >
+                {deleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-700"></div>
+                    <span>Excluindo...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Excluir</span>
+                  </>
+                )}
+              </Button>
+            )}
             <Badge className={`${statusColors[lead.status]} px-4 py-2 text-sm font-semibold`}>
               {statusNames[lead.status]}
             </Badge>
