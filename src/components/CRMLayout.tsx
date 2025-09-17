@@ -42,124 +42,135 @@ export const CRMLayout: React.FC<CRMLayoutProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary-light/5 to-success-light/10 flex">
+      {/* Premium Sidebar */}
       <div className={`${
-        sidebarOpen ? 'w-64' : 'w-16'
-      } transition-all duration-300 bg-card border-r border-card-border flex flex-col shadow-lg`}>
+        sidebarOpen ? 'w-72' : 'w-20'
+      } transition-all duration-500 ease-out glass-effect border-r border-border/30 flex flex-col shadow-xl backdrop-blur-xl`}>
         
-        {/* Header */}
-        <div className="p-4 border-b border-card-border">
+        {/* Premium Header */}
+        <div className="p-6 border-b border-border/30">
           <div className="flex items-center justify-between">
             {sidebarOpen && (
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center">
-                  <Kanban className="w-4 h-4 text-primary-foreground" />
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-primary animate-pulse-glow">
+                  <Kanban className="w-6 h-6 text-white" />
                 </div>
-                <span className="font-bold text-lg bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
-                  ProCRM
-                </span>
+                <div>
+                  <span className="font-bold text-2xl bg-gradient-to-r from-primary via-primary to-success bg-clip-text text-transparent">
+                    ProCRM
+                  </span>
+                  <p className="text-xs text-muted-foreground font-medium">Premium Edition</p>
+                </div>
               </div>
             )}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="hover:bg-muted"
+              className="hover:glass-effect rounded-xl transition-all duration-300 hover:scale-110"
             >
-              {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
           </div>
         </div>
 
-        {/* User Info */}
-        <div className="p-4 border-b border-card-border">
-          <div className="flex items-center space-x-3">
-            <Avatar className="w-10 h-10">
-              <AvatarFallback className="bg-gradient-to-br from-primary to-primary-dark text-primary-foreground font-semibold">
+        {/* Premium User Info */}
+        <div className="p-6 border-b border-border/30">
+          <div className="flex items-center space-x-4">
+            <Avatar className="w-12 h-12 ring-2 ring-primary/20 shadow-lg">
+              <AvatarFallback className="bg-gradient-primary text-white font-bold text-lg">
                 {user?.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             {sidebarOpen && (
               <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm font-medium truncate text-card-foreground">
+                <div className="flex items-center space-x-2 mb-1">
+                  <p className="text-base font-bold truncate text-foreground">
                     {user?.name}
                   </p>
                   {user?.role === 'master' && (
-                    <Badge variant="secondary" className="bg-gradient-to-r from-warning to-warning text-warning-foreground px-2 py-0.5 text-xs">
+                    <Badge className="bg-gradient-to-r from-warning to-warning/80 text-white px-3 py-1 text-xs font-bold shadow-sm">
                       <Crown className="w-3 h-3 mr-1" />
                       Admin
                     </Badge>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="text-xs text-muted-foreground truncate font-medium">
                   {user?.email}
                 </p>
+                <div className="mt-2 w-full bg-border/30 rounded-full h-1">
+                  <div className="bg-gradient-primary h-1 rounded-full w-full animate-pulse"></div>
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {navigation.map((item) => (
-              <li key={item.id}>
+        {/* Premium Navigation */}
+        <nav className="flex-1 p-6">
+          <ul className="space-y-3">
+            {navigation.map((item, index) => (
+              <li key={item.id} style={{ animationDelay: `${index * 0.1}s` }} className="animate-slide-up">
                 <Button
                   variant={currentPage === item.id ? "default" : "ghost"}
-                  className={`w-full justify-start h-11 ${
+                  className={`w-full justify-start h-12 rounded-xl font-semibold transition-all duration-300 ${
                     currentPage === item.id 
-                      ? 'bg-gradient-to-r from-primary to-primary-dark text-primary-foreground shadow-md' 
-                      : 'hover:bg-muted text-card-foreground hover:text-primary'
+                      ? 'bg-gradient-primary text-white shadow-primary scale-105' 
+                      : 'hover:glass-effect text-foreground hover:text-primary hover:scale-105 hover:shadow-card'
                   }`}
                   onClick={() => onPageChange(item.id)}
                 >
-                  <item.icon className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-                  {sidebarOpen && item.name}
+                  <item.icon className={`w-5 h-5 ${sidebarOpen ? 'mr-4' : ''}`} />
+                  {sidebarOpen && (
+                    <span className="text-sm">{item.name}</span>
+                  )}
                 </Button>
               </li>
             ))}
           </ul>
         </nav>
 
-        {/* Logout */}
-        <div className="p-4 border-t border-card-border">
+        {/* Premium Logout */}
+        <div className="p-6 border-t border-border/30">
           <Button
             variant="ghost"
-            className="w-full justify-start text-destructive hover:bg-destructive-light hover:text-destructive"
+            className="w-full justify-start h-12 rounded-xl font-semibold text-destructive hover:bg-destructive-light hover:text-destructive hover:scale-105 transition-all duration-300"
             onClick={logout}
           >
-            <LogOut className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-            {sidebarOpen && 'Sair'}
+            <LogOut className={`w-5 h-5 ${sidebarOpen ? 'mr-4' : ''}`} />
+            {sidebarOpen && <span className="text-sm">Sair</span>}
           </Button>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Premium Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
-        <header className="bg-card border-b border-card-border px-6 py-4 shadow-sm">
+        {/* Premium Top Bar */}
+        <header className="glass-effect border-b border-border/30 px-8 py-6 shadow-card">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-card-foreground">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
                 {navigation.find(nav => nav.id === currentPage)?.name || 'Dashboard'}
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Gerencie seus leads e vendas de forma eficiente
+              <p className="text-muted-foreground font-medium mt-1">
+                Gerencie seus leads e vendas com inteligência premium
               </p>
             </div>
             
-            <div className="flex items-center space-x-3">
-              <div className="text-sm text-muted-foreground">
-                Usuário ativo: <span className="font-semibold text-card-foreground">{user?.name}</span>
+            <div className="flex items-center space-x-4">
+              <div className="glass-effect px-4 py-2 rounded-xl">
+                <span className="text-sm text-muted-foreground">Usuário ativo:</span>
+                <span className="ml-2 font-bold bg-gradient-to-r from-primary to-success bg-clip-text text-transparent">
+                  {user?.name}
+                </span>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Content */}
-        <main className="flex-1 overflow-auto bg-background p-6">
+        {/* Premium Content */}
+        <main className="flex-1 overflow-auto">
           {children}
         </main>
       </div>
